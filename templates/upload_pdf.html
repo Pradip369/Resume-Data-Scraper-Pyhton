@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Pdf</title>
+</head>
+
+<style>
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid blue;
+        border-right: 16px solid green;
+        border-bottom: 16px solid red;
+        border-left: 16px solid pink;
+        width: 60px;
+        height: 60px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 0.5s linear infinite;
+        display: inline-block;
+    }
+
+    @-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    #id_enter_url{
+        width: 600px;
+        height: 20px;
+        font-weight: bold;
+    }
+</style>
+
+<body style="background-color: rgb(215, 219, 197);">
+    <center><h2>Convert CV data into JSON</h2></center>
+    <hr/>
+
+    <form id = 'file_form' method="get">
+        <center>
+            <h4>
+                {{fm.as_p}}
+                <input type="submit" value="Submit" style="background-color: rgb(186, 149, 221); color: white;">
+            </h4>
+        </center>
+    </form>
+
+    <hr/>
+
+    <h4 hidden class = "_loader">Converting start!!Please Wait this step may be take more time... </h4>
+    <center hidden class = "_loader"><div class="loader"></div></center>
+
+    <div id = 'json_data' hidden style="margin: 20px; background-color: rgb(237, 245, 245); padding: 5px; border: 1px solid black;">
+        <center><h2> JSON DATA </h2></center>
+        <pre id="json" style="font-weight: bold;">{{data}}</pre>
+        <br />
+        <a href="/" style="text-decoration: none; font-weight: bold;">Refresh</a>
+        <br />
+    </div>
+
+    <div id = 'error' hidden style="margin: 20px; background-color: rgb(226, 212, 212); padding: 5px; border: 1px solid black; color: red; font-weight: bold;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    const prety_json = (data) => {
+            var element = document.getElementById("json");
+            // var obj = JSON.parse(data);
+            element.innerHTML = JSON.stringify(data, undefined, 2);
+        }
+    $("#file_form").submit(function (e) {
+            e.preventDefault();
+            $('._loader').show();
+            $("#json_data").hide();
+            $("#error").hide();
+            const file_name = $('#id_enter_url').val()
+            $.ajax({
+                url: "{% url 'json_data' %}" + `?file_name=${file_name}`,
+                type: 'get',
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $("#file_form")[0].reset();
+                    console.log(response.data)
+                    $("#json_data").show();
+                    prety_json(response.data)
+                    $('._loader').hide();
+                },
+                error: function (error) {
+                    document.getElementById("error").innerText = '❗ Error : ' + JSON.stringify(error.responseJSON.data) + '\n' + "This error mostly occurs when this cv's field format mismatch to predefined format!!";
+                    $("#error").show();
+                    $('._loader').hide();
+                }
+            });
+        });
+
+</script>
+</body>
+</html>
