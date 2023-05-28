@@ -71,9 +71,11 @@ def upload_file(request):
         url = request.GET['file_name']
         http = urllib3.PoolManager()
         temp = io.BytesIO()
-        temp.write(http.request("GET", url).data)
+
+        headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36', 'Accept': 'text/html,application/pdf,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
+        temp.write(http.request("GET", url,headers = headers).data)
+
         file_name = temp
-        
         pdf = pdfplumber.open(file_name)
         education_details = get_edu_add_details(pdf)
         degree = education_details[0].strip()
